@@ -18,8 +18,6 @@ from transformers import LlamaConfig, LlamaModel, LlamaTokenizer
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 
-AA = np.load('normal_adjacent.npy')
-
 def sparse_mx_to_torch_sparse_tensor(sparse_mx):
     """Convert a scipy sparse matrix to a torch sparse tensor."""
     sparse_mx = sparse_mx.tocoo().astype(np.float32)
@@ -46,11 +44,6 @@ def normalize(mx):
     r_mat_inv = sp.diags(r_inv)
     mx = r_mat_inv.dot(mx)
     return mx
-
-
-adj0 = sp.coo_matrix(AA, dtype=np.float32)
-adj0 = adj0 + adj0.T.multiply(adj0.T > adj0) - adj0.multiply(adj0.T > adj0)
-adj0 = sparse_mx_to_torch_sparse_tensor((adj0 + sp.eye(adj0.shape[0])))
 
 
 
@@ -367,7 +360,11 @@ def answers_(t2):
     return answers
 
 
-
+AA = np.load('normal_adjacent.npy')
+text1 = np.load('text1.npy')
+adj0 = sp.coo_matrix(AA, dtype=np.float32)
+adj0 = adj0 + adj0.T.multiply(adj0.T > adj0) - adj0.multiply(adj0.T > adj0)
+adj0 = sparse_mx_to_torch_sparse_tensor((adj0 + sp.eye(adj0.shape[0])))
 model = Model(nfeat = 16, nhid = 32, nclass = 16, dropout = 0.4)
 taxi_tensor_in = np.load('taxi_tensor_in.npy')
 sum_list = np.sum(taxi_tensor_in, axis=1)
